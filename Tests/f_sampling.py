@@ -1,14 +1,14 @@
-# functions for creating summary samples of different formats as well as saving them in csv format or pickling.
 from random import sample
 from time import time
 from csv import writer
 import pickle 
 import spacy
 
-# given list of items and a summarizer, return a list of (item, summary) pair.
-
 nlp = spacy.load("en_core_web_sm")
 
+
+# Not currently used with present data
+# Current data is simply represented by {"text: , summary_text: "} items instead of these fSample objects
 class fSample:
 
     def __init__(self, text, sum="", keyw=[], keys=[]):
@@ -31,8 +31,18 @@ class fSample:
             for s in self.keys:
                 print(s)
 
-    
+    @staticmethod          
+    def sumpair_to_sample(sumpair):
+        return fSample(sumpair[0], sumpair[1])
+
+    @staticmethod
+    def sumpairs_to_samplelist(list):
+        return [fSample.sumpair_to_sample(sumpair) for sumpair in list]
+
 def sum_sample(items, summarizer, size = 100, res_errors = False, res_time = False, object = False):
+    """
+    Given the a summarizer and a list of inputs, return a random sample of {"text: ...", "summary_text: ..."} items of given size
+    """
     res = []
     errors = 0
     t = time()
@@ -55,9 +65,10 @@ def sum_sample(items, summarizer, size = 100, res_errors = False, res_time = Fal
     
     return res
 
-
 def fsave(name, items, mode ="pickle"):
-
+    """
+    save data with the given format in the /data directory
+    """
     if mode == "pickle":
         with open(f'data\{name}', 'wb') as file:
             pickle.dump(items, file)
@@ -67,18 +78,17 @@ def fsave(name, items, mode ="pickle"):
             wr.writerows(items)
 
 def fopen(name):
+    """
+    open the pickled data from /data directory
+    """
     with open(f"data/{name}", 'rb') as file:
         p = pickle.load(file)
     return p
 
-def sumpair_to_sample(sumpair):
-    return fSample(sumpair[0], sumpair[1])
-
-def sumpairs_to_samplelist(list):
-    return [fSample.sumpair_to_sample(sumpair) for sumpair in list]
-
-# assumes given summpairs
 def keyfilter (keywords, items):
+    """
+    given a list of summary pairs obtained from fsample above and a list of keywords 
+    """
     res = []
     for item in items:
         s = item["text"]
